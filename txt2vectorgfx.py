@@ -26,6 +26,7 @@ from zipfile import ZipFile
 import requests
 import glob
 import os.path
+from sys import platform
 
 import modules.scripts as scripts
 import modules.images as Images
@@ -97,28 +98,39 @@ class Script(scripts.Script):
         return Processed(p, images, p.seed, "")
 
     def check_protrace_install(self) -> str:
-        # prefer local potrace over that from PATH
-        if not os.path.exists(PO_EXE):
+        # For Linux, run potrace from installed binary
+        if platform == "linux" or platform == "linux2":
             try:
                 # check whether already in PATH 
                 checkPath = subprocess.Popen(["potrace","-v"])
                 checkPath.wait()
                 return "potrace"
-
             except (Exception):
+                raise Exception("Cannot find installed Protrace. Please run `sudo apt install potrace`")
+                    
+        # prefer local potrace over that from PATH
+        elif platform == "win32":
+            if not os.path.exists(PO_EXE):
                 try:
-                    # try to download protrace and unzip locally into "scripts"
-                    if not os.path.exists(PO_ZIP):
-                        r = requests.get(PO_URL)
-                        with open(PO_ZIP, 'wb') as f:
-                            f.write(r.content) 
+                    # check whether already in PATH 
+                    checkPath = subprocess.Popen(["potrace","-v"])
+                    checkPath.wait()
+                    return "potrace"
 
-                    with ZipFile(PO_ZIP, 'r') as zipObj:
-                        exe = zipObj.read(PO_ZIP_EXE)
-                        with open(PO_EXE,"wb") as e:
-                            e.write(exe)
-                            zipObj.close()
-                            os.remove(PO_ZIP)
-                except:
-                    raise Exception("Cannot find and or download/extract Protrace. Provide protrace in script folder. ")
+                except (Exception):
+                    try:
+                        # try to download protrace and unzip locally into "scripts"
+                        if not os.path.exists(PO_ZIP):
+                            r = requests.get(PO_URL)
+                            with open(PO_ZIP, 'wb') as f:
+                                f.write(r.content) 
+
+                        with ZipFile(PO_ZIP, 'r') as zipObj:
+                            exe = zipObj.read(PO_ZIP_EXE)
+                            with open(PO_EXE,"wb") as e:
+                                e.write(exe)
+                                zipObj.close()
+                                os.remove(PO_ZIP)
+                    except:
+                        raise Exception("Cannot find and or download/extract Protrace. Provide protrace in script folder. ")
         return PO_EXE

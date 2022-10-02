@@ -23,6 +23,9 @@ coffe mug in shape of a heart | <img src="https://user-images.githubusercontent.
 - place it into your SD-installtion folder into "scripts"
 - run your webui as usual
 
+If you're running under WSL, Ubuntu or another Linux distro you will need to install potrace.
+Run `sudo apt install potrace`.
+
 ## Dependencies, Potrace
 At execution time, the script checks if your have 
 - already POTRACE in your PATH
