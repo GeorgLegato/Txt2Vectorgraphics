@@ -10,12 +10,15 @@ Potrace is under GPL, you can download the source from the url above.
 If you dont want to download that, please install POTRACE to your 
 system manually and assign it to your PATH env variable properly.
 """
-POS_PROMPT = ",(((vector graphic))), (((black white, line art))), atari graphic"
-NEG_PROMPT = ",background, colors, shading, details"
-PO_URL     = "https://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip"
-PO_ZIP     = "potrace.zip"
-PO_ZIP_EXE = "potrace-1.16.win64/potrace.exe"
-PO_EXE     = "scripts/potrace.exe"
+
+POS_PROMPT_BW = ",((vector graphic)), ((line art)), (atari graphic)"
+NEG_PROMPT_BW = ",background, colors, colorful, shading, details"
+
+POS_PROMPT_CO = ",((cell shading)),(vector graphic), (line art), atari graphic"
+NEG_PROMPT_CO = "shadings, shades, details"
+
+PO_URL     = "https://github.com/visioncortex/vtracer/releases/download/0.4.0/vtracer.exe"
+PO_EXE     = "scripts/vtracer.exe"
 
 ##########################################################################
 
@@ -33,28 +36,42 @@ import gradio as gr
 
 from modules.processing import Processed, process_images
 from modules.shared import opts
+from PIL import Image
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF, renderPM
 
 class Script(scripts.Script):
     def title(self):
-        return "Text to Vectorgraphics"
+        return "Text to Vectorgraphics - VTRACER"
 
     def ui(self, is_img2img):
-        poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
+        poMode = gr.Dropdown(["Monochrome","Colored"], visible=False, label="Colormode", value="Monochrome")
+      
+        poFormat = gr.Dropdown(["svg","pdf"], visible=False, label="Output format", value="svg")
+        poPreset = gr.Dropdown(["none","bw","poster","photo"], visible=True, label="Preset", value="none")
+        poFilterSpeckle = gr.Slider(label="Filter Speckles", minimum=0, maximum=128, step=1, value=30)
+        poColorPrecision = gr.Slider(label="Color Precision", minimum=1, maximum=8, step=1, value=7)
         poOpaque = gr.Checkbox(label="White is Opaque", value=True)
         poTight = gr.Checkbox(label="Cut white margin from input", value=True)
         poKeepPnm = gr.Checkbox(label="Keep temp images", value=False)
         poThreshold = gr.Slider(label="Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.5)
 
-        return [poFormat,poOpaque, poTight, poKeepPnm, poThreshold]
+        return [poFormat,poOpaque, poTight, poKeepPnm, poThreshold,poPreset,poFilterSpeckle, poColorPrecision, poMode]
 
-    def run(self, p, poFormat, poOpaque, poTight, poKeepPnm, poThreshold):
+    def run(self, p, poFormat, poOpaque, poTight, poKeepPnm, poThreshold,poPreset,poFilterSpeckle,poColorPrecision, poMode):
         PO_TO_CALL = self.check_protrace_install()
 
         p.do_not_save_grid = True
 
         # make SD great b/w stuff
-        p.prompt += POS_PROMPT
-        p.negative_prompt += NEG_PROMPT
+        if "Monochrome" == poMode:
+            p.prompt += POS_PROMPT_BW
+            p.negative_prompt += NEG_PROMPT_BW
+            modearg = ["--colormode","bw"]
+        else:
+            p.prompt += POS_PROMPT_CO
+            p.negative_prompt += NEG_PROMPT_CO
+            modearg = ["--colormode","color"]
 
         images = []
         proc = process_images(p)
@@ -71,54 +88,63 @@ class Script(scripts.Script):
         # latest first
         files = sorted(files, key=os.path.getctime, reverse=True)
 
+        imagePairs = []
+
         try:
             # vectorize
             for i,img in enumerate(images[::-1]): 
                 fullfn = files[i]
-                fullofpnm = pathlib.Path(fullfn).with_suffix('.pnm')
                 fullof = pathlib.Path(fullfn).with_suffix('.'+poFormat)
+                fullofpng = pathlib.Path(fullfn).with_suffix('.'+poFormat+".png")
 
-                img.save(fullofpnm)
+                args = [PO_TO_CALL]
 
-                args = [PO_TO_CALL,  "-b", poFormat, "-o", fullof, "--blacklevel", format(poThreshold, 'f')]
-                if poOpaque: args.append("--opaque")
-                if poTight: args.append("--tight")
-                args.append(fullofpnm)
+                if poPreset != "none": 
+                    args.append("--preset")
+                    args.append(poPreset)
+                else:
+                    args.extend (modearg)
+                    args.extend (["-m", "spline"])
+                    args.extend (["--path_precision", "6"])
+                    args.extend (["-p", str(poColorPrecision)])
+
+                args.extend (["-i", fullfn, "-o", fullof])
 
                 p2 = subprocess.Popen(args)
+                p2.wait()
 
-                if not poKeepPnm:
-                    p2.wait()
-                    os.remove(fullofpnm)
+                drawing = svg2rlg(fullof)
+                #renderPDF.drawToFile(drawing, "file.pdf")
+                renderPM.drawToFile(drawing, fullofpng, fmt="PNG")
+
+#                p3 = subprocess.Popen(["magick" ,"convert", fullof, fullofpng])
+#                p3.wait()
+
+                svgimg = Image.open(fullofpng)
+                imagePairs.append (img)
+                imagePairs.append (svgimg)
 
         except (Exception):
-            raise Exception("TXT2Vectorgraphics: Execution of Protrace failed, check filesystem, permissions, installation or settings")
+            raise Exception("TXT2Vectorgraphics: Execution of Tracer failed, check filesystem, permissions, installation or settings")
 
-        return Processed(p, images, p.seed, "")
+        return Processed(p, imagePairs, p.seed, "chacka")
 
     def check_protrace_install(self) -> str:
         # prefer local potrace over that from PATH
         if not os.path.exists(PO_EXE):
             try:
                 # check whether already in PATH 
-                checkPath = subprocess.Popen(["potrace","-v"])
+                checkPath = subprocess.Popen(["vtracer","-v"])
                 checkPath.wait()
-                return "potrace"
+                return "vtracer"
 
             except (Exception):
                 try:
                     # try to download protrace and unzip locally into "scripts"
-                    if not os.path.exists(PO_ZIP):
+                    if not os.path.exists(PO_EXE):
                         r = requests.get(PO_URL)
-                        with open(PO_ZIP, 'wb') as f:
+                        with open(PO_EXE, 'wb') as f:
                             f.write(r.content) 
-
-                    with ZipFile(PO_ZIP, 'r') as zipObj:
-                        exe = zipObj.read(PO_ZIP_EXE)
-                        with open(PO_EXE,"wb") as e:
-                            e.write(exe)
-                            zipObj.close()
-                            os.remove(PO_ZIP)
                 except:
-                    raise Exception("Cannot find and or download/extract Protrace. Provide protrace in script folder. ")
+                    raise Exception("Cannot find and or download/extract Vtrace. Provide protrace in script folder. ")
         return PO_EXE
