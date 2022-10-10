@@ -99,7 +99,16 @@ class Script(scripts.Script):
 
     def check_protrace_install(self) -> str:
         # For Linux, run potrace from installed binary
-        if platform == "linux" or platform == "linux2":
+        if platform == "darwin":
+            try:
+                # check whether already in PATH 
+                checkPath = subprocess.Popen(["potrace","-v"])
+                checkPath.wait()
+                return "potrace"
+            except (Exception):
+                raise Exception("Cannot find installed Protrace on Mac. Please run `sudo apt install potrace`")
+
+        elif platform == "linux" or platform == "linux2":
             try:
                 # check whether already in PATH 
                 checkPath = subprocess.Popen(["potrace","-v"])
@@ -107,7 +116,7 @@ class Script(scripts.Script):
                 return "potrace"
             except (Exception):
                 raise Exception("Cannot find installed Protrace. Please run `sudo apt install potrace`")
-                    
+
         # prefer local potrace over that from PATH
         elif platform == "win32":
             if not os.path.exists(PO_EXE):
