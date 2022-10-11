@@ -106,7 +106,7 @@ class Script(scripts.Script):
                 checkPath.wait()
                 return "potrace"
             except (Exception):
-                raise Exception("Cannot find installed Protrace on Mac. Please run `sudo apt install potrace`")
+                raise Exception("Cannot find installed Protrace on Mac. Please run `brew install potrace`")
 
         elif platform == "linux" or platform == "linux2":
             try:
