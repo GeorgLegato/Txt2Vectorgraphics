@@ -1,4 +1,4 @@
-""" 
+"""
 using POTRACE as backend cmd line tool for vectorizing SD output
 This script will download from
 
@@ -10,8 +10,9 @@ Potrace is under GPL, you can download the source from the url above.
 If you dont want to download that, please install POTRACE to your 
 system manually and assign it to your PATH env variable properly.
 """
-POS_PROMPT = ",(((vector graphic))), (((black white, line art))), atari graphic"
-NEG_PROMPT = ",background, colors, shading, details"
+
+POSITIVE_PROMPT = ""
+NEGATIVE_PROMPT = ""
 PO_URL     = "https://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip"
 PO_ZIP     = "potrace.zip"
 PO_ZIP_EXE = "potrace-1.16.win64/potrace.exe"
@@ -37,25 +38,56 @@ from modules.shared import opts
 
 class Script(scripts.Script):
     def title(self):
-        return "Text to Vectorgraphics"
+        return "Text to Vector Graphics"
 
     def ui(self, is_img2img):
+        poUseColor = gr.Radio(["Illustration","Logo","Drawing","Artistic","Tattoo","Gothic","Anime","Cartoon"], label="Visual style", value="Illustration")
         poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
         poOpaque = gr.Checkbox(label="White is Opaque", value=True)
         poTight = gr.Checkbox(label="Cut white margin from input", value=True)
         poKeepPnm = gr.Checkbox(label="Keep temp images", value=False)
         poThreshold = gr.Slider(label="Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.5)
 
-        return [poFormat,poOpaque, poTight, poKeepPnm, poThreshold]
+        return [poUseColor,poFormat, poOpaque, poTight, poKeepPnm, poThreshold]
 
-    def run(self, p, poFormat, poOpaque, poTight, poKeepPnm, poThreshold):
-        PO_TO_CALL = self.check_protrace_install()
+    def run(self, p, poUseColor,poFormat, poOpaque, poTight, poKeepPnm, poThreshold):
+        PO_TO_CALL = self.check_Potrace_install()
 
         p.do_not_save_grid = True
 
-        # make SD great b/w stuff
-        p.prompt += POS_PROMPT
-        p.negative_prompt += NEG_PROMPT
+        # Select result type
+        if poUseColor == "Illustration":
+            POSITIVE_PROMPT = ",(((vector graphic))),medium detail"
+        
+        if poUseColor == "Logo":
+            POSITIVE_PROMPT = ",(((centered vector graphic logo))),negative space,stencil,trending on dribbble"
+            
+        if poUseColor == "Drawing":
+            POSITIVE_PROMPT = ",(((cartoon graphic))),childrens book,lineart,negative space" 
+            
+        if poUseColor == "Artistic":
+            POSITIVE_PROMPT = ",(((artistic monochrome painting))),precise lineart,negative space"
+            
+        if poUseColor == "Tattoo":
+            POSITIVE_PROMPT = ",(((tattoo ink on paper))),uniform lighting,lineart,negative space"
+            
+        if poUseColor == "Gothic":
+            POSITIVE_PROMPT = ",(((gothic ink on paper))),H.P. Lovecraft,Arthur Rackham"
+            
+        if poUseColor == "Anime":
+            POSITIVE_PROMPT = ",(((clean ink anime illustration))),Studio Ghibli,Makoto Shinkai,Hayao Miyazaki,Audrey Kawasaki"
+            
+        if poUseColor == "Cartoon":
+            POSITIVE_PROMPT = ",(((clean ink funny comic cartoon illustration)))"
+        
+        # Add the prompt from above
+        p.prompt += POSITIVE_PROMPT 
+        # Add the selected settings 
+        SETTING_PROMPT=",(((black on white))),((low detail)),(simple),no background,high contrast,sharp,2 bit"
+        p.prompt += SETTING_PROMPT
+        
+        NEGATIVE_PROMPT = ",(((text))),((color)),(shading),noise,dithering,gradient,detailed,out of frame,ugly,error,Illustration"
+        p.negative_prompt += NEGATIVE_PROMPT
 
         images = []
         proc = process_images(p)
@@ -93,11 +125,11 @@ class Script(scripts.Script):
                     os.remove(fullofpnm)
 
         except (Exception):
-            raise Exception("TXT2Vectorgraphics: Execution of Protrace failed, check filesystem, permissions, installation or settings")
+            raise Exception("TXT2Vectorgraphics: Execution of Potrace failed, check filesystem, permissions, installation or settings (is image saving on?)")
 
         return Processed(p, images, p.seed, "")
 
-    def check_protrace_install(self) -> str:
+    def check_Potrace_install(self) -> str:
         # For Linux, run potrace from installed binary
         if platform == "darwin":
             try:
@@ -108,14 +140,14 @@ class Script(scripts.Script):
             except (Exception):
                 raise Exception("Cannot find installed Protrace on Mac. Please run `brew install potrace`")
 
-        elif platform == "linux" or platform == "linux2":
+        elif platform == "linux"or platform == "linux2":
             try:
                 # check whether already in PATH 
                 checkPath = subprocess.Popen(["potrace","-v"])
                 checkPath.wait()
                 return "potrace"
             except (Exception):
-                raise Exception("Cannot find installed Protrace. Please run `sudo apt install potrace`")
+                raise Exception("Cannot find installed Potrace. Please run `sudo apt install '  `")
 
         # prefer local potrace over that from PATH
         elif platform == "win32":
@@ -128,7 +160,7 @@ class Script(scripts.Script):
 
                 except (Exception):
                     try:
-                        # try to download protrace and unzip locally into "scripts"
+                        # try to download Potrace and unzip locally into "scripts"
                         if not os.path.exists(PO_ZIP):
                             r = requests.get(PO_URL)
                             with open(PO_ZIP, 'wb') as f:
@@ -141,5 +173,5 @@ class Script(scripts.Script):
                                 zipObj.close()
                                 os.remove(PO_ZIP)
                     except:
-                        raise Exception("Cannot find and or download/extract Protrace. Provide protrace in script folder. ")
+                        raise Exception("Cannot find and or download/extract Potrace. Provide Potrace in script folder. ")
         return PO_EXE
