@@ -133,7 +133,7 @@ class Script(scripts.Script):
                 checkPath.wait()
                 return "potrace"
             except (Exception):
-                raise Exception("Cannot find installed Potrace. Please run `sudo apt install '  `")
+                raise Exception("Cannot find installed Potrace. Please run `sudo apt install potrace`")
 
         # prefer local potrace over that from PATH
         elif platform == "win32":
