@@ -17,14 +17,15 @@ PO_ZIP_EXE = "potrace-1.16.win64/potrace.exe"
 PO_EXE     = "scripts/potrace.exe"
 
 StyleDict = {
+    "Anime":",(((clean ink anime illustration))),Studio Ghibli,Makoto Shinkai,Hayao Miyazaki,Audrey Kawasaki",
+    "Artistic":",(((artistic monochrome painting))),precise lineart,negative space",
+    "Cartoon":",(((clean ink funny comic cartoon illustration)))",
+    "Drawing":",(((cartoon graphic))),childrens book,lineart,negative space",
+    "Gothic":",(((gothic ink on paper))),H.P. Lovecraft,Arthur Rackham",
     "Illustration":",(((vector graphic))),medium detail",
     "Logo":",(((centered vector graphic logo))),negative space,stencil,trending on dribbble",
-    "Drawing":",(((cartoon graphic))),childrens book,lineart,negative space",
-    "Artistic":",(((artistic monochrome painting))),precise lineart,negative space",
+    "Sticker":",(Die-cut sticker, kawaii sticker,white background, illustration minimalism, vector, pastel colors)",
     "Tattoo":",(((tattoo template, ink on paper))),uniform lighting,lineart,negative space",
-    "Gothic":",(((gothic ink on paper))),H.P. Lovecraft,Arthur Rackham",
-    "Anime":",(((clean ink anime illustration))),Studio Ghibli,Makoto Shinkai,Hayao Miyazaki,Audrey Kawasaki",
-    "Cartoon":",(((clean ink funny comic cartoon illustration)))",
     "None - prompt only":""
 }
 
