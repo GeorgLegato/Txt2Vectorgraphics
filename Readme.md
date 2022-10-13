@@ -32,6 +32,7 @@ If nothing matches, select "None - promp only" and have back full control.
 - Clone or download the txt2vectorgraphics.py file 
 - place it into your SD-installtion folder into "scripts"
 - run your webui as usual
+- ***HINT***: Install Microsoft Powertoys for free, and enjoy in your file explorer SVG previews.
 
 ### Linux
 If you're running under WSL, Ubuntu or another Linux distro you will need to install potrace.
