@@ -33,13 +33,14 @@ If nothing matches, select "None - promp only" and have back full control.
 - place it into your SD-installtion folder into "scripts"
 - run your webui as usual
 - ***HINT***: Install Microsoft Powertoys for free, and enjoy in your file explorer SVG previews.
+![image](https://user-images.githubusercontent.com/7210708/195476107-3a2d799f-306e-46c8-ad3c-75a44fbcfdb8.png)
 
 ### Linux
-If you're running under WSL, Ubuntu or another Linux distro you will need to install potrace.
+If you're running under WSL, Ubuntu or another Linux distro you will need to install potrace. 
 Run `sudo apt install potrace`.
 
 ### Mac
-Run `brew install potrace`. Ensure `potrace` is in your PATH so that you could run in simply by calling from a command terminal.
+Run `brew install potrace`.  Ensure `potrace` is in your PATH so that you could run in simply by calling from a command terminal.
 
 ## Dependencies, Potrace
 At execution time, the script checks if your have 
