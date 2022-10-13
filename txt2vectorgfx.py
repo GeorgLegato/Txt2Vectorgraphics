@@ -42,7 +42,7 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         poUseColor = gr.Radio(["Illustration","Logo","Drawing","Artistic","Tattoo","Gothic","Anime","Cartoon"], label="Visual style", value="Illustration")
-        poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
+        poFormat = gr.Dropdown(["svg","png"], label="Output format", value="svg")
         poOpaque = gr.Checkbox(label="White is Opaque", value=True)
         poTight = gr.Checkbox(label="Cut white margin from input", value=True)
         poKeepPnm = gr.Checkbox(label="Keep temp images", value=False)
