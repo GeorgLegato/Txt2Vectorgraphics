@@ -90,6 +90,9 @@ class Script(scripts.Script):
         # latest first
         files = sorted(files, key=os.path.getctime, reverse=True)
 
+        assert len(files) > 0
+        assert len(files) >= len(images), "could not find generated image files. Ensure they are stored at all, best if in subdirectory"
+
         try:
             # vectorize
             for i,img in enumerate(images[::-1]): 
