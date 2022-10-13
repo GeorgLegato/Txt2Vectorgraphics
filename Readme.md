@@ -18,13 +18,27 @@ coffe mug in shape of a heart | <img src="https://user-images.githubusercontent.
 ![image](https://user-images.githubusercontent.com/7210708/193370345-c3e6f3d8-2d75-48d3-98ab-b6501e953d67.png)
 
 
+## Features
+
+* New: Added Visual Styles - RadioButtons provided by the script. Edit the script to extend of modify 
+Stuff like Illustration, Tattoo, Anime etc, to save your time finding prompts on your own.
+If nothing matches, select "None - promp only" and have back full control.
+
+* New: Linux and Mac support handling POTRACE for you
+
 ## Installation
+
+### Windows
 - Clone or download the txt2vectorgraphics.py file 
 - place it into your SD-installtion folder into "scripts"
 - run your webui as usual
 
+### Linux
 If you're running under WSL, Ubuntu or another Linux distro you will need to install potrace.
 Run `sudo apt install potrace`.
+
+### Mac
+Run `brew install potrace`. Ensure `potrace` is in your PATH so that you could run in simply by calling from a command terminal.
 
 ## Dependencies, Potrace
 At execution time, the script checks if your have 
