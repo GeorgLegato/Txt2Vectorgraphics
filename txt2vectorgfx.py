@@ -11,12 +11,22 @@ If you dont want to download that, please install POTRACE to your
 system manually and assign it to your PATH env variable properly.
 """
 
-POSITIVE_PROMPT = ""
-NEGATIVE_PROMPT = ""
 PO_URL     = "https://potrace.sourceforge.net/download/1.16/potrace-1.16.win64.zip"
 PO_ZIP     = "potrace.zip"
 PO_ZIP_EXE = "potrace-1.16.win64/potrace.exe"
 PO_EXE     = "scripts/potrace.exe"
+
+StyleDict = {
+    "Illustration":",(((vector graphic))),medium detail",
+    "Logo":",(((centered vector graphic logo))),negative space,stencil,trending on dribbble",
+    "Drawing":",(((cartoon graphic))),childrens book,lineart,negative space",
+    "Artistic":",(((artistic monochrome painting))),precise lineart,negative space",
+    "Tattoo":",(((tattoo template, ink on paper))),uniform lighting,lineart,negative space",
+    "Gothic":",(((gothic ink on paper))),H.P. Lovecraft,Arthur Rackham",
+    "Anime":",(((clean ink anime illustration))),Studio Ghibli,Makoto Shinkai,Hayao Miyazaki,Audrey Kawasaki",
+    "Cartoon":",(((clean ink funny comic cartoon illustration)))",
+    "None - prompt only":""
+}
 
 ##########################################################################
 
@@ -41,7 +51,7 @@ class Script(scripts.Script):
         return "Text to Vector Graphics"
 
     def ui(self, is_img2img):
-        poUseColor = gr.Radio(["Illustration","Logo","Drawing","Artistic","Tattoo","Gothic","Anime","Cartoon"], label="Visual style", value="Illustration")
+        poUseColor = gr.Radio(list(StyleDict.keys()), label="Visual style", value="Illustration")
         poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
         poOpaque = gr.Checkbox(label="White is Opaque", value=True)
         poTight = gr.Checkbox(label="Cut white margin from input", value=True)
@@ -55,38 +65,14 @@ class Script(scripts.Script):
 
         p.do_not_save_grid = True
 
-        # Select result type
-        if poUseColor == "Illustration":
-            POSITIVE_PROMPT = ",(((vector graphic))),medium detail"
-        
-        if poUseColor == "Logo":
-            POSITIVE_PROMPT = ",(((centered vector graphic logo))),negative space,stencil,trending on dribbble"
-            
-        if poUseColor == "Drawing":
-            POSITIVE_PROMPT = ",(((cartoon graphic))),childrens book,lineart,negative space" 
-            
-        if poUseColor == "Artistic":
-            POSITIVE_PROMPT = ",(((artistic monochrome painting))),precise lineart,negative space"
-            
-        if poUseColor == "Tattoo":
-            POSITIVE_PROMPT = ",(((tattoo ink on paper))),uniform lighting,lineart,negative space"
-            
-        if poUseColor == "Gothic":
-            POSITIVE_PROMPT = ",(((gothic ink on paper))),H.P. Lovecraft,Arthur Rackham"
-            
-        if poUseColor == "Anime":
-            POSITIVE_PROMPT = ",(((clean ink anime illustration))),Studio Ghibli,Makoto Shinkai,Hayao Miyazaki,Audrey Kawasaki"
-            
-        if poUseColor == "Cartoon":
-            POSITIVE_PROMPT = ",(((clean ink funny comic cartoon illustration)))"
-        
         # Add the prompt from above
-        p.prompt += POSITIVE_PROMPT 
+        p.prompt += StyleDict[poUseColor]
+
         # Add the selected settings 
-        SETTING_PROMPT=",(((black on white))),((low detail)),(simple),no background,high contrast,sharp,2 bit"
+        SETTING_PROMPT=",(((black on white))),((low detail)),(simple),high contrast,sharp,2 bit"
         p.prompt += SETTING_PROMPT
         
-        NEGATIVE_PROMPT = ",(((text))),((color)),(shading),noise,dithering,gradient,detailed,out of frame,ugly,error,Illustration"
+        NEGATIVE_PROMPT = ",(((text))),((color)),(shading),background,noise,dithering,gradient,detailed,out of frame,ugly,error,Illustration, watermark"
         p.negative_prompt += NEGATIVE_PROMPT
 
         images = []
