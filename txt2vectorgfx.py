@@ -69,19 +69,23 @@ class Script(scripts.Script):
         with gr.Row():
 
             with gr.Column():
-                with gr.Row():
-                    poDoVector = gr.Checkbox(label="Enable Vectorizing", value=True)
-                    poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
-                    poOpaque = gr.Checkbox(label="White is Opaque", value=True)
-                    poTight = gr.Checkbox(label="Cut white margin from input", value=True)
-                with gr.Row():
-                    poKeepPnm = gr.Checkbox(label="Keep temp images", value=False)
-                    poThreshold = gr.Slider(label="Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.5)
+                    with gr.Box():
+                        with gr.Group():
+                            with gr.Row():
+                                poDoVector = gr.Checkbox(label="Enable Vectorizing", value=True)
+                                poFormat = gr.Dropdown(["svg","pdf"], label="Output format", value="svg")
+                                poOpaque = gr.Checkbox(label="White is Opaque", value=True)
+                                poTight = gr.Checkbox(label="Cut white margin from input", value=True)
+                            with gr.Row():
+                                poKeepPnm = gr.Checkbox(label="Keep temp images", value=False)
+                                poThreshold = gr.Slider(label="Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.5)
 
             with gr.Column():
-                    poTransPNG      = gr.Checkbox(label="Transparent PNG",value=True)
-                    poTransPNGEps   = gr.Slider(label="Noise Tolerance",minimum=0,maximum=128,value=16)
-                    poTransPNGQuant = gr.Slider(label="Quantize",minimum=1,maximum=255,value=16)
+                    with gr.Box():
+                        with gr.Group():
+                            poTransPNG      = gr.Checkbox(label="Transparent PNG",value=False)
+                            poTransPNGEps   = gr.Slider(label="Noise Tolerance",minimum=0,maximum=128,value=16)
+                            poTransPNGQuant = gr.Slider(label="Quantize",minimum=1,maximum=255,value=16)
 
         return [poUseColor,poFormat, poOpaque, poTight, poKeepPnm, poThreshold, poTransPNG, poTransPNGEps,poDoVector,poTransPNGQuant]
 
@@ -119,6 +123,7 @@ class Script(scripts.Script):
         try:
             # vectorize
             for i,img in enumerate(images[::-1]): 
+                if (not hasattr(img,"already_saved_as")) : continue
                 fullfn = files[i]
                 fullfnPath = pathlib.Path(fullfn)
                 
@@ -136,14 +141,14 @@ class Script(scripts.Script):
                     self.doTransPNG(poTransPNGEps, mixedImages, img, fullofTPNG, poTransPNGQuant)
 
                 if poDoVector:
-                    self.doVector(poFormat, poOpaque, poTight, poKeepPnm, poThreshold, PO_TO_CALL, img, fullofpnm, fullof)
+                    self.doVector(poFormat, poOpaque, poTight, poKeepPnm, poThreshold, PO_TO_CALL, img, fullofpnm, fullof, mixedImages)
 
         except (Exception):
             raise Exception("TXT2Vectorgraphics: Execution of Potrace failed, check filesystem, permissions, installation or settings (is image saving on?)")
 
         return Processed(p, mixedImages, p.seed, proc.info)
 
-    def doVector(self, poFormat, poOpaque, poTight, poKeepPnm, poThreshold, PO_TO_CALL, img, fullofpnm, fullof):
+    def doVector(self, poFormat, poOpaque, poTight, poKeepPnm, poThreshold, PO_TO_CALL, img, fullofpnm, fullof, mixedImages):
         # for vectorizing
         img.save(fullofpnm)
 
@@ -159,15 +164,14 @@ class Script(scripts.Script):
             os.remove(fullofpnm)
 
         abspathsvg = os.path.abspath(fullof)
-        t = [abspathsvg,"SVG"] # img, caption
-        mixedImages.append(t)
+        mixedImages.append([abspathsvg,"SVG"]) # img, caption
 
     def doTransPNG(self, poTransPNGEps, mixedImages, img, fullofTPNG, poTransPNGQuant):
         #Image.quantize(colors=256, method=None, kmeans=0, palette=None)
         imgQ = img.quantize(colors=poTransPNGQuant, kmeans=0, palette=None)
         histo = imgQ.histogram()
 
-        # get first pixel and assum it is background, best with Sticker style
+        # get first pixel and assume it is background, best with Sticker style
         if (imgQ):
             bgI = imgQ.getpixel((0,0)) # return pal index
             bg = list(imgQ.palette.colors.keys())[bgI]

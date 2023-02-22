@@ -59,3 +59,10 @@ and extracts only the executable into scripts folder in the scripts folder.
 - Batch count support (16)
 - Mostly you want to make white parts opaque (see checkbox in the scripts ui)
 - Same for clipping the content to SVG size
+
+
+# History
+Version 0.3: 
+* Fix on Controlnet internal images
+* Display SVGs in gallery!
+  
