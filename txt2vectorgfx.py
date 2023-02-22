@@ -51,7 +51,6 @@ import glob
 import os.path
 from sys import platform
 
-
 import modules.scripts as scripts
 import modules.images as Images
 import gradio as gr
@@ -165,7 +164,7 @@ class Script(scripts.Script):
             os.remove(fullofpnm)
 
         abspathsvg = os.path.abspath(fullof)
-        mixedImages.append(abspathsvg)
+        mixedImages.append([abspathsvg,"SVG"]) # img, caption
 
     def doTransPNG(self, poTransPNGEps, mixedImages, img, fullofTPNG, poTransPNGQuant):
         #Image.quantize(colors=256, method=None, kmeans=0, palette=None)
