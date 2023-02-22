@@ -134,7 +134,7 @@ class Script(scripts.Script):
 
                 fullof = pathlib.Path(fullfn).with_suffix('.'+poFormat)
 
-                mixedImages.append(img)
+                mixedImages.append([img,"PNG"])
 
                 # set transparency to PNG, actually not vector feature, but people need it
                 if poTransPNG:
@@ -189,8 +189,8 @@ class Script(scripts.Script):
 
         imgT.putdata(newData)
         imgT.save(fullofTPNG)
-        mixedImages.append(imgQ)
-        mixedImages.append(imgT)
+        mixedImages.append([imgQ,"PNG-quantized"])
+        mixedImages.append([imgT,"PNG-transparent"])
 
     def check_Potrace_install(self) -> str:
         # For Linux, run potrace from installed binary
