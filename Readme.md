@@ -62,7 +62,7 @@ and extracts only the executable into scripts folder in the scripts folder.
 
 
 # History
-Version 0.5: 
+Version 0.3: 
 * Fix on Controlnet internal images
 * Display SVGs in gallery!
   
