@@ -158,6 +158,10 @@ class Script(scripts.Script):
             p2.wait()
             os.remove(fullofpnm)
 
+        abspathsvg = os.path.abspath(fullof)
+        t = [abspathsvg,"SVG"] # img, caption
+        mixedImages.append(t)
+
     def doTransPNG(self, poTransPNGEps, mixedImages, img, fullofTPNG, poTransPNGQuant):
         #Image.quantize(colors=256, method=None, kmeans=0, palette=None)
         imgQ = img.quantize(colors=poTransPNGQuant, kmeans=0, palette=None)
