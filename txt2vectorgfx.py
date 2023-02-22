@@ -165,7 +165,6 @@ class Script(scripts.Script):
             os.remove(fullofpnm)
 
         abspathsvg = os.path.abspath(fullof)
-        print (abspathsvg)
         mixedImages.append(abspathsvg)
 
     def doTransPNG(self, poTransPNGEps, mixedImages, img, fullofTPNG, poTransPNGQuant):
