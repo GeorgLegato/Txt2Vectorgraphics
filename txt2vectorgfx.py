@@ -85,7 +85,7 @@ class Script(scripts.Script):
                         with gr.Group():
                             poTransPNG      = gr.Checkbox(label="Transparent PNG",value=False)
                             poTransPNGEps   = gr.Slider(label="Noise Tolerance",minimum=0,maximum=128,value=16)
-                            poTransPNGQuant = gr.Slider(label="Quantize",minimum=1,maximum=255,value=16)
+                            poTransPNGQuant = gr.Slider(label="Quantize",minimum=2,maximum=255,value=16)
 
         return [poUseColor,poFormat, poOpaque, poTight, poKeepPnm, poThreshold, poTransPNG, poTransPNGEps,poDoVector,poTransPNGQuant]
 
