@@ -50,6 +50,7 @@ import requests
 import glob
 import os.path
 from sys import platform
+import time
 
 import modules.scripts as scripts
 import modules.images as Images
@@ -112,12 +113,22 @@ class Script(scripts.Script):
             folder = glob.glob(p.outpath_samples+"/*")
             folder = max(folder, key=os.path.getctime)
 
-        files = glob.glob(folder+"/*."+opts.samples_format)
+        tobeglobbed = folder+"/*."+opts.samples_format
+        files = glob.glob(tobeglobbed)
+
+        if ((len(files) < 1) or (len(files) < len(images)) ):
+            # immediately prints the following.
+            print("Txt2Vector: image file not yet written, waiting two seconds for filesystem...")
+            print("files before wait: " + files)
+            time.sleep(2)
+            files = glob.glob(tobeglobbed)
+            print("files after wait: " + files)
+
+        assert len(files) > 0, "no image file found in folder:"+tobeglobbed
+        assert len(files) >= len(images), "could not find enough generated image files. folder: "+tobeglobbed
+
         # latest first
         files = sorted(files, key=os.path.getctime, reverse=True)
-
-        assert len(files) > 0
-        assert len(files) >= len(images), "could not find generated image files. Ensure they are stored at all, best if in subdirectory"
 
         mixedImages = []
         try:
