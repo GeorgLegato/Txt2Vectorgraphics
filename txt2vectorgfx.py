@@ -116,16 +116,14 @@ class Script(scripts.Script):
         tobeglobbed = folder+"/*."+opts.samples_format
         files = glob.glob(tobeglobbed)
 
-        if ((len(files) < 1) or (len(files) < len(images)) ):
-            # immediately prints the following.
+        if (len(files) < 1) :
             print("Txt2Vector: image file not yet written, waiting two seconds for filesystem...")
-            print("files before wait: " + files)
+            print("files before wait: " + '\n'.join(map(str, files)))
             time.sleep(2)
             files = glob.glob(tobeglobbed)
-            print("files after wait: " + files)
+            print("files after wait: " + '\n'.join(map(str, files)))
 
         assert len(files) > 0, "no image file found in folder:"+tobeglobbed
-        assert len(files) >= len(images), "could not find enough generated image files. folder: "+tobeglobbed
 
         # latest first
         files = sorted(files, key=os.path.getctime, reverse=True)
