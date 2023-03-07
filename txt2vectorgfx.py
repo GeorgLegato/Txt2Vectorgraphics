@@ -98,42 +98,14 @@ class Script(scripts.Script):
         # Add the prompt from above
         p.prompt += StyleDict[poUseColor]
 
-# not yet        
-#        p.cfg_scale=BASE_SCALE
-#        p.steps = BASE_STEPS
-
-        images = []
         proc = process_images(p)
-        images += proc.images        
-
-        # unfortunately the concrete file name is nontrivial using increment counter etc, so we have to reverse-guess the last stored images by changetime
-        folder = p.outpath_samples
-
-        if opts.save_to_dirs:
-            folder = glob.glob(p.outpath_samples+"/*")
-            folder = max(folder, key=os.path.getctime)
-
-        tobeglobbed = folder+"/*."+opts.samples_format
-        files = glob.glob(tobeglobbed)
-
-        if (len(files) < 1) :
-            print("Txt2Vector: image file not yet written, waiting two seconds for filesystem...")
-            print("files before wait: " + '\n'.join(map(str, files)))
-            time.sleep(2)
-            files = glob.glob(tobeglobbed)
-            print("files after wait: " + '\n'.join(map(str, files)))
-
-        assert len(files) > 0, "no image file found in folder:"+tobeglobbed
-
-        # latest first
-        files = sorted(files, key=os.path.getctime, reverse=True)
-
         mixedImages = []
+
         try:
             # vectorize
-            for i,img in enumerate(images[::-1]): 
+            for i,img in enumerate(proc.images[::-1]): 
                 if (not hasattr(img,"already_saved_as")) : continue
-                fullfn = files[i]
+                fullfn = img.already_saved_as
                 fullfnPath = pathlib.Path(fullfn)
                 
                 fullofpnm =  fullfnPath.with_suffix('.pnm') #for vectorizing
