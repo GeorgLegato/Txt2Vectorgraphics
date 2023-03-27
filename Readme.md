@@ -1,5 +1,5 @@
 # This script is discontinued ...  
-# but coming back as new extension : [Vector Studio](https://github.com/GeorgLegato/stable-diffusion-webui-vectorstudio")
+# but coming back as new extension : [Vector Studio](https://github.com/GeorgLegato/stable-diffusion-webui-vectorstudio)
 
 
 
