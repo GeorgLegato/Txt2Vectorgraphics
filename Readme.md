@@ -1,3 +1,9 @@
+# This script is discontinued ...  
+# but coming back as new extension : [Vector Studio](https://github.com/GeorgLegato/stable-diffusion-webui-vectorstudio")
+
+
+
+---
 # Text to Vectorgraphics
 This is a custom script to extend Automatic1111 StableDiffusion WebUI, in order to generate useful SVG or PDF icons given by your prompts.
 
